@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobility Friction Mapping | Seattle Accessibility Analysis</title>
+    <title>Seattle Accessibility Analysis</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -31,6 +32,8 @@
             color: var(--light);
             line-height: 1.6;
             overflow-x: hidden;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         /* Hero Section */
@@ -100,6 +103,11 @@
             border-radius: 20px;
             padding: 2rem;
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
         }
 
         .stat-card:hover {
@@ -110,17 +118,19 @@
 
         .stat-number {
             font-family: 'Syne', sans-serif;
-            font-size: 3rem;
+            font-size: clamp(2.5rem, 5vw, 3rem);
             font-weight: 800;
             color: var(--primary);
             margin-bottom: 0.5rem;
+            line-height: 1;
         }
 
         .stat-label {
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
             color: var(--gray);
             text-transform: uppercase;
             letter-spacing: 1px;
+            text-align: center;
         }
 
         @keyframes fadeInUp {
@@ -213,6 +223,9 @@
             padding: 2rem;
             border-radius: 10px;
             transition: all 0.3s ease;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            hyphens: auto;
         }
 
         .problem-card:hover {
@@ -222,9 +235,15 @@
 
         .problem-card h3 {
             font-family: 'Syne', sans-serif;
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
             margin-bottom: 1rem;
             color: var(--primary);
+            line-height: 1.3;
+        }
+
+        .problem-card p {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            line-height: 1.7;
         }
 
         /* MFI Section */
@@ -236,19 +255,29 @@
             background: rgba(99, 102, 241, 0.1);
             border: 2px solid var(--secondary);
             border-radius: 20px;
-            padding: 3rem;
+            padding: 2.5rem;
             margin: 3rem 0;
+        }
+
+        .mfi-explanation p {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            line-height: 1.8;
         }
 
         .mfi-formula {
             font-family: 'Syne', sans-serif;
-            font-size: 1.5rem;
+            font-size: clamp(0.9rem, 2.5vw, 1.5rem);
             text-align: center;
             margin: 2rem 0;
             padding: 2rem;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 10px;
             overflow-x: auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .mfi-component {
@@ -256,7 +285,9 @@
             padding: 0.5rem 1rem;
             background: var(--secondary);
             border-radius: 5px;
-            margin: 0.5rem;
+            margin: 0.25rem;
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            white-space: nowrap;
         }
 
         /* Findings Section */
@@ -278,6 +309,9 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
         }
 
         .finding-card::before {
@@ -292,7 +326,7 @@
 
         .finding-number {
             font-family: 'Syne', sans-serif;
-            font-size: 4rem;
+            font-size: clamp(3rem, 8vw, 4rem);
             font-weight: 800;
             color: var(--primary);
             margin-bottom: 1rem;
@@ -300,15 +334,17 @@
             position: absolute;
             top: 1rem;
             right: 1rem;
+            line-height: 1;
         }
 
         .finding-card h3 {
             font-family: 'Syne', sans-serif;
-            font-size: 1.8rem;
+            font-size: clamp(1.3rem, 3vw, 1.8rem);
             margin-bottom: 1rem;
             color: var(--light);
             position: relative;
             z-index: 2;
+            line-height: 1.3;
         }
 
         .finding-card p {
@@ -316,6 +352,9 @@
             color: var(--gray);
             position: relative;
             z-index: 2;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
 
         /* Comparison Section */
@@ -332,7 +371,7 @@
         }
 
         .comparison-card {
-            padding: 3rem;
+            padding: 2.5rem;
             border-radius: 20px;
             position: relative;
             overflow: hidden;
@@ -358,16 +397,19 @@
 
         .comparison-title {
             font-family: 'Syne', sans-serif;
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 4vw, 2rem);
             font-weight: 800;
             margin-bottom: 2rem;
+            line-height: 1.2;
+            overflow-wrap: break-word;
         }
 
         .comparison-mfi {
             font-family: 'Syne', sans-serif;
-            font-size: 5rem;
+            font-size: clamp(3rem, 8vw, 5rem);
             font-weight: 800;
             margin: 2rem 0;
+            line-height: 1;
         }
 
         .comparison-card.high .comparison-mfi {
@@ -387,6 +429,12 @@
             justify-content: space-between;
             padding: 1rem 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .comparison-stat span {
+            font-size: clamp(0.9rem, 2vw, 1rem);
         }
 
         /* Priority Section */
@@ -403,7 +451,7 @@
         .priority-item {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
-            padding: 2.5rem;
+            padding: 2rem;
             display: grid;
             grid-template-columns: auto 1fr auto;
             gap: 2rem;
@@ -419,21 +467,26 @@
 
         .priority-rank {
             font-family: 'Syne', sans-serif;
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3rem);
             font-weight: 800;
             width: 80px;
             height: 80px;
+            min-width: 60px;
+            min-height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: var(--gradient-2);
             border-radius: 50%;
+            flex-shrink: 0;
         }
 
         .priority-info h3 {
             font-family: 'Syne', sans-serif;
-            font-size: 1.8rem;
+            font-size: clamp(1.3rem, 3vw, 1.8rem);
             margin-bottom: 0.5rem;
+            line-height: 1.2;
+            overflow-wrap: break-word;
         }
 
         .priority-details {
@@ -446,10 +499,11 @@
         .priority-detail {
             display: flex;
             flex-direction: column;
+            min-width: 100px;
         }
 
         .priority-detail-label {
-            font-size: 0.8rem;
+            font-size: clamp(0.7rem, 1.5vw, 0.8rem);
             color: var(--gray);
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -457,16 +511,17 @@
 
         .priority-detail-value {
             font-family: 'Syne', sans-serif;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2vw, 1.2rem);
             font-weight: 700;
             color: var(--light);
         }
 
         .priority-mfi {
             font-family: 'Syne', sans-serif;
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3rem);
             font-weight: 800;
             color: var(--primary);
+            flex-shrink: 0;
         }
 
         /* CTA Section */
@@ -611,6 +666,7 @@
             .priority-item {
                 grid-template-columns: 1fr;
                 text-align: center;
+                gap: 1.5rem;
             }
 
             .priority-rank {
@@ -623,6 +679,68 @@
 
             .nav-links {
                 display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1.5rem;
+            }
+
+            .problem-grid,
+            .findings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mfi-explanation {
+                padding: 2rem;
+            }
+
+            .mfi-formula {
+                font-size: 0.9rem;
+                padding: 1.5rem;
+            }
+
+            .comparison-card {
+                padding: 2rem;
+            }
+
+            section {
+                padding: 4rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .priority-details {
+                gap: 1rem;
+            }
+
+            .priority-detail {
+                min-width: 80px;
+            }
+
+            .mfi-component {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.8rem;
             }
         }
 
@@ -657,7 +775,7 @@
     <!-- Navigation -->
     <nav id="nav">
         <div class="container">
-            <div class="logo">MFI</div>
+            <div class="logo">The Chiikawans</div>
             <ul class="nav-links">
                 <li><a href="#problem">Problem</a></li>
                 <li><a href="#mfi">Solution</a></li>
@@ -671,7 +789,7 @@
     <section class="hero">
         <div class="hero-content">
             <h1>Mobility Friction Mapping</h1>
-            <p class="hero-subtitle">Revealing Inequities in Urban Accessibility Through Data Science</p>
+            <p class="hero-subtitle">Quang Nguyen & Ricky Tran</p>
             
             <div class="stats-grid">
                 <div class="stat-card">
@@ -725,7 +843,7 @@
     <!-- MFI Solution Section -->
     <section id="mfi">
         <div class="container">
-            <h2 class="section-title reveal">Our Innovation: The Mobility Friction Index</h2>
+            <h2 class="section-title reveal">The Mobility Friction Index</h2>
             
             <div class="mfi-explanation reveal">
                 <p style="font-size: 1.2rem; text-align: center; margin-bottom: 2rem;">
@@ -918,9 +1036,13 @@
             <p>This analysis provides the roadmap to making Seattle truly accessible for all. Use data-driven prioritization to guide investments and measure progress annually.</p>
             
             <div class="cta-buttons">
-                <a href="#" class="btn btn-primary" onclick="alert('Download full report, datasets, and visualizations from the project deliverables!')">Download Full Report</a>
-                <a href="#" class="btn btn-secondary" onclick="alert('View all visualizations, interactive maps, and detailed analysis!')">Explore Data</a>
+                <a href="https://github.com/Bluelajide/bluelajide.github.io.git" target="_blank" class="btn btn-primary">View on GitHub</a>
+                <a href="https://github.com/Bluelajide/bluelajide.github.io/tree/94451e161c2638e259686ae5555cd5c7c79ace34/csv-outputs" target="_blank" class="btn btn-secondary">Explore Data & Visualizations</a>
             </div>
+            
+            <p style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">
+                📊 Full report • 🗺️ Interactive maps • 📈 Complete datasets • 📝 All visualizations
+            </p>
         </div>
     </section>
 
