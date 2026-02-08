@@ -1,0 +1,528 @@
+import React, { useState, useEffect } from 'react';
+import { Clock, Users, Lock, Key, Share2, Play, Home, MessageSquare, Lightbulb, CheckCircle, XCircle, Trophy } from 'lucide-react';
+
+export default function OnlineEscapeRoom() {
+  const [gameState, setGameState] = useState('home'); // home, lobby, playing, won, lost
+  const [roomCode, setRoomCode] = useState('');
+  const [playerName, setPlayerName] = useState('');
+  const [players, setPlayers] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [puzzleProgress, setPuzzleProgress] = useState({});
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [hints, setHints] = useState(3);
+
+  const rooms = [
+    {
+      id: 'alchemist',
+      name: "The Alchemist's Lab",
+      difficulty: "Medium",
+      time: 10,
+      description: "Mix the correct potions to unlock the ancient formula",
+      puzzles: 4,
+      color: "from-purple-600 to-indigo-600"
+    },
+    {
+      id: 'cyber',
+      name: "Cyber Heist 2084",
+      difficulty: "Hard",
+      time: 15,
+      description: "Hack through security systems to steal the data",
+      puzzles: 5,
+      color: "from-pink-600 to-red-600"
+    },
+    {
+      id: 'haunted',
+      name: "Haunted Manor",
+      difficulty: "Easy",
+      time: 8,
+      description: "Solve the ghostly mysteries before midnight strikes",
+      puzzles: 3,
+      color: "from-blue-600 to-cyan-600"
+    }
+  ];
+
+  // Timer countdown
+  useEffect(() => {
+    if (gameState === 'playing' && timeLeft > 0) {
+      const timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            setGameState('lost');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [gameState, timeLeft]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const generateRoomCode = () => {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+  };
+
+  const createRoom = (room) => {
+    if (!playerName.trim()) {
+      alert('Please enter your name first!');
+      return;
+    }
+    const code = generateRoomCode();
+    setRoomCode(code);
+    setSelectedRoom(room);
+    setPlayers([{ name: playerName, isHost: true }]);
+    setTimeLeft(room.time * 60);
+    setGameState('lobby');
+  };
+
+  const joinRoom = () => {
+    if (!playerName.trim() || !roomCode.trim()) {
+      alert('Please enter your name and room code!');
+      return;
+    }
+    setPlayers([{ name: playerName, isHost: false }, { name: 'Player 2', isHost: true }]);
+    setSelectedRoom(rooms[0]);
+    setGameState('lobby');
+  };
+
+  const startGame = () => {
+    setGameState('playing');
+    setChatMessages([{ sender: 'System', text: 'Game started! Work together to solve the puzzles!', isSystem: true }]);
+  };
+
+  const sendMessage = () => {
+    if (chatInput.trim()) {
+      setChatMessages([...chatMessages, { sender: playerName, text: chatInput, isSystem: false }]);
+      setChatInput('');
+    }
+  };
+
+  const useHint = () => {
+    if (hints > 0) {
+      setHints(hints - 1);
+      setChatMessages([...chatMessages, { 
+        sender: 'System', 
+        text: '💡 Hint: Look for patterns in the symbols. The order matters!', 
+        isSystem: true 
+      }]);
+    }
+  };
+
+  const solvePuzzle = (puzzleId) => {
+    const newProgress = { ...puzzleProgress, [puzzleId]: true };
+    setPuzzleProgress(newProgress);
+    
+    const totalPuzzles = selectedRoom?.puzzles || 0;
+    const solvedPuzzles = Object.keys(newProgress).length;
+    
+    if (solvedPuzzles === totalPuzzles) {
+      setGameState('won');
+    }
+  };
+
+  // Home Screen
+  if (gameState === 'home') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white overflow-hidden relative">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
+          {/* Hero Section */}
+          <div className="text-center mb-16 pt-8">
+            <div className="inline-flex items-center justify-center gap-3 mb-6 bg-purple-500/20 backdrop-blur-sm px-6 py-3 rounded-full border border-purple-400/30">
+              <Lock className="w-8 h-8 text-purple-400 animate-pulse" />
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight">MYSTERYLINK</h1>
+            </div>
+            <p className="text-xl md:text-2xl text-gray-300 mb-4">Connect with friends through thrilling mysteries</p>
+            <p className="text-sm text-purple-300">🎮 Multiplayer • 🧩 Real Puzzles • 💬 Live Chat • ⏰ Beat The Clock</p>
+          </div>
+
+          {/* Player Name Input - Prominent */}
+          <div className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 backdrop-blur-lg rounded-3xl p-8 mb-12 max-w-2xl mx-auto border border-purple-400/30 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Users className="w-6 h-6 text-purple-400" />
+              <label className="block text-2xl font-bold">Enter Your Name to Start</label>
+            </div>
+            <input
+              type="text"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              placeholder="Your name..."
+              className="w-full bg-white/10 border-2 border-purple-400/50 rounded-xl px-6 py-4 text-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:bg-white/20 transition-all"
+            />
+          </div>
+
+          {/* Main Content Grid */}
+          <div className="grid lg:grid-cols-3 gap-8 mb-12">
+            {/* Room Selection - Takes 2 columns */}
+            <div className="lg:col-span-2">
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold mb-2 flex items-center gap-3">
+                  <Key className="w-8 h-8 text-yellow-400" />
+                  Choose Your Adventure
+                </h2>
+                <p className="text-gray-400">Select a room and create a game for your friends to join</p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                {rooms.map((room) => (
+                  <div
+                    key={room.id}
+                    className={`bg-gradient-to-br ${room.color} rounded-2xl p-6 cursor-pointer transform hover:scale-105 hover:shadow-2xl transition-all duration-300 border-2 border-white/20`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-2xl font-bold">{room.name}</h3>
+                      <Lock className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm mb-4 opacity-90 min-h-[40px]">{room.description}</p>
+                    <div className="flex flex-wrap gap-2 mb-4 text-xs">
+                      <span className="bg-black/40 px-3 py-1 rounded-full font-semibold">{room.difficulty}</span>
+                      <span className="bg-black/40 px-3 py-1 rounded-full">⏱️ {room.time} min</span>
+                      <span className="bg-black/40 px-3 py-1 rounded-full">🧩 {room.puzzles} puzzles</span>
+                    </div>
+                    <button
+                      onClick={() => createRoom(room)}
+                      className="w-full bg-white text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                    >
+                      <Play className="w-5 h-5" />
+                      Create Room
+                    </button>
+                  </div>
+                ))}
+                
+                {/* Coming Soon Card */}
+                <div className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-6 opacity-60 border-2 border-dashed border-gray-600">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-2xl font-bold">More Rooms</h3>
+                    <Lock className="w-6 h-6" />
+                  </div>
+                  <p className="text-sm mb-4 min-h-[40px]">New challenges coming soon...</p>
+                  <div className="flex flex-wrap gap-2 mb-4 text-xs">
+                    <span className="bg-black/40 px-3 py-1 rounded-full font-semibold">Coming Soon</span>
+                  </div>
+                  <button
+                    disabled
+                    className="w-full bg-gray-600 text-gray-400 font-bold py-3 rounded-xl cursor-not-allowed"
+                  >
+                    Stay Tuned
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Join Room Section - Takes 1 column */}
+            <div>
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold mb-2 flex items-center gap-3">
+                  <Share2 className="w-8 h-8 text-blue-400" />
+                  Join Friends
+                </h2>
+                <p className="text-gray-400">Have a room code? Jump right in!</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-600/20 to-cyan-600/20 backdrop-blur-lg rounded-2xl p-8 border border-blue-400/30 shadow-2xl sticky top-6">
+                <div className="mb-6 text-center">
+                  <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Key className="w-10 h-10 text-blue-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">Enter Room Code</h3>
+                  <p className="text-sm text-gray-400">Ask your friend for their 6-digit code</p>
+                </div>
+                
+                <input
+                  type="text"
+                  value={roomCode}
+                  onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                  placeholder="ABC123"
+                  className="w-full bg-white/10 border-2 border-blue-400/50 rounded-xl px-6 py-4 text-2xl text-center font-bold text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white/20 transition-all mb-6 tracking-widest"
+                  maxLength={6}
+                />
+                
+                <button
+                  onClick={joinRoom}
+                  className="w-full bg-blue-600 hover:bg-blue-700 font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-lg"
+                >
+                  <Users className="w-6 h-6" />
+                  Join Game
+                </button>
+
+                <div className="mt-6 pt-6 border-t border-white/10">
+                  <p className="text-xs text-gray-400 text-center">
+                    💡 Tip: Share your room code with friends via chat, email, or any messaging app!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Feature Cards */}
+          <div className="grid md:grid-cols-4 gap-4">
+            {[
+              { icon: Users, title: "Multiplayer", desc: "Play with 2-8 friends" },
+              { icon: Clock, title: "Timed Challenge", desc: "Beat the clock together" },
+              { icon: MessageSquare, title: "Live Chat", desc: "Coordinate in real-time" },
+              { icon: Lightbulb, title: "Hint System", desc: "Get help when stuck" }
+            ].map((feature, idx) => (
+              <div key={idx} className="bg-black/20 backdrop-blur-sm rounded-xl p-4 border border-purple-400/20 text-center hover:border-purple-400/50 transition-all">
+                <feature.icon className="w-8 h-8 mx-auto mb-2 text-purple-400" />
+                <h4 className="font-bold mb-1">{feature.title}</h4>
+                <p className="text-xs text-gray-400">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Lobby Screen
+  if (gameState === 'lobby') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white p-6">
+        <div className="max-w-4xl mx-auto pt-12">
+          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-4xl font-bold mb-2">{selectedRoom?.name}</h2>
+              <p className="text-gray-300 mb-4">{selectedRoom?.description}</p>
+              
+              <div className="inline-block bg-purple-600/30 border-2 border-purple-400 rounded-lg px-8 py-4">
+                <div className="text-sm text-gray-300 mb-1">Room Code</div>
+                <div className="text-3xl font-bold tracking-wider flex items-center gap-3">
+                  {roomCode}
+                  <Share2 className="w-6 h-6 cursor-pointer hover:text-purple-400" onClick={() => navigator.clipboard.writeText(roomCode)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Users className="w-6 h-6" />
+                Players in Lobby ({players.length})
+              </h3>
+              <div className="space-y-2">
+                {players.map((player, idx) => (
+                  <div key={idx} className="bg-white/10 rounded-lg px-4 py-3 flex items-center justify-between">
+                    <span className="font-semibold">{player.name}</span>
+                    {player.isHost && <span className="bg-purple-600 px-3 py-1 rounded-full text-sm">Host</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => setGameState('home')}
+                className="flex-1 bg-gray-700 hover:bg-gray-600 font-bold py-3 rounded-lg transition-all"
+              >
+                Leave Room
+              </button>
+              {players.find(p => p.name === playerName)?.isHost && (
+                <button
+                  onClick={startGame}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2"
+                >
+                  <Play className="w-5 h-5" />
+                  Start Game
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Playing Screen
+  if (gameState === 'playing') {
+    const solvedPuzzles = Object.keys(puzzleProgress).length;
+    const totalPuzzles = selectedRoom?.puzzles || 0;
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">{selectedRoom?.name}</h2>
+              <div className="text-sm text-gray-300">Room: {roomCode}</div>
+            </div>
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <div className="text-sm text-gray-300">Progress</div>
+                <div className="text-2xl font-bold">{solvedPuzzles}/{totalPuzzles}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm text-gray-300">Time Left</div>
+                <div className={`text-2xl font-bold ${timeLeft < 60 ? 'text-red-400' : ''}`}>
+                  <Clock className="w-5 h-5 inline mr-1" />
+                  {formatTime(timeLeft)}
+                </div>
+              </div>
+              <button
+                onClick={useHint}
+                disabled={hints === 0}
+                className={`px-4 py-2 rounded-lg font-bold ${hints > 0 ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-gray-600 cursor-not-allowed'}`}
+              >
+                <Lightbulb className="w-5 h-5 inline mr-1" />
+                Hints: {hints}
+              </button>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Game Area */}
+            <div className="lg:col-span-2 space-y-4">
+              {[...Array(totalPuzzles)].map((_, idx) => {
+                const puzzleId = `puzzle-${idx + 1}`;
+                const isSolved = puzzleProgress[puzzleId];
+                
+                return (
+                  <div
+                    key={puzzleId}
+                    className={`bg-black/30 backdrop-blur-lg rounded-2xl p-6 border-2 ${isSolved ? 'border-green-400' : 'border-purple-400/30'}`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-bold">Puzzle {idx + 1}</h3>
+                      {isSolved ? (
+                        <CheckCircle className="w-6 h-6 text-green-400" />
+                      ) : (
+                        <Lock className="w-6 h-6 text-purple-400" />
+                      )}
+                    </div>
+                    
+                    {!isSolved ? (
+                      <div>
+                        <p className="text-gray-300 mb-4">
+                          Decode the sequence: 🔵 🔴 🟢 🟡 = ?
+                        </p>
+                        <div className="grid grid-cols-4 gap-2 mb-4">
+                          {['A', 'B', 'C', 'D'].map(option => (
+                            <button
+                              key={option}
+                              onClick={() => solvePuzzle(puzzleId)}
+                              className="bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold transition-all"
+                            >
+                              {option}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-green-400 font-bold">✓ Solved by team!</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Chat & Players */}
+            <div className="space-y-4">
+              {/* Players */}
+              <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4">
+                <h3 className="font-bold mb-3 flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Team ({players.length})
+                </h3>
+                <div className="space-y-2">
+                  {players.map((player, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-sm">{player.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Chat */}
+              <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 flex flex-col h-96">
+                <h3 className="font-bold mb-3 flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5" />
+                  Team Chat
+                </h3>
+                <div className="flex-1 overflow-y-auto space-y-2 mb-3">
+                  {chatMessages.map((msg, idx) => (
+                    <div
+                      key={idx}
+                      className={`text-sm ${msg.isSystem ? 'text-center text-yellow-400 italic' : ''}`}
+                    >
+                      {!msg.isSystem && <span className="font-bold">{msg.sender}: </span>}
+                      <span>{msg.text}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                    placeholder="Type a message..."
+                    className="flex-1 bg-white/10 border border-purple-400/30 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400"
+                  />
+                  <button
+                    onClick={sendMessage}
+                    className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-all"
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Win/Loss Screen
+  if (gameState === 'won' || gameState === 'lost') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white flex items-center justify-center p-6">
+        <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-12 text-center max-w-2xl">
+          {gameState === 'won' ? (
+            <>
+              <Trophy className="w-24 h-24 text-yellow-400 mx-auto mb-6" />
+              <h2 className="text-5xl font-bold mb-4">🎉 Congratulations!</h2>
+              <p className="text-xl text-gray-300 mb-2">You escaped {selectedRoom?.name}!</p>
+              <p className="text-lg text-gray-400 mb-8">Time remaining: {formatTime(timeLeft)}</p>
+            </>
+          ) : (
+            <>
+              <XCircle className="w-24 h-24 text-red-400 mx-auto mb-6" />
+              <h2 className="text-5xl font-bold mb-4">Time's Up!</h2>
+              <p className="text-xl text-gray-300 mb-2">You didn't escape in time...</p>
+              <p className="text-lg text-gray-400 mb-8">Better luck next time!</p>
+            </>
+          )}
+          
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={() => {
+                setGameState('home');
+                setPuzzleProgress({});
+                setHints(3);
+                setChatMessages([]);
+                setPlayers([]);
+              }}
+              className="bg-purple-600 hover:bg-purple-700 px-8 py-3 rounded-lg font-bold transition-all flex items-center gap-2"
+            >
+              <Home className="w-5 h-5" />
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
