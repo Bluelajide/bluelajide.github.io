@@ -1,4 +1,4 @@
-# Mobility Friction Mapping: Seattle Accessibility Analysis
+# Seattle Accessibility Analysis
 
 ## Overview
 
